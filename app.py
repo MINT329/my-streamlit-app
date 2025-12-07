@@ -27,33 +27,16 @@ def extract_article(url):
         return None, "Error fetching the article content."
     
     metadata = trafilatura.extract_metadata(downloaded)
-
     article_text = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
     if not article_text:
         return None, "Error extracting the article text."
-     
-    if metadata:
-        if isinstance(metadata, dict):
-            title = metadata.get("title", "No Title Found")
-        else:
-            title = "No Title Found"
+    
+    if metadata and isinstance(metadata, dict):
+        title = metadata.get("title", "No Title Found")
     else:
         title = "No Title Found"
-
-    return title, article_text, None
-   
     
-
-def analyze_with_gemini(prompt):
-    if not gemini_api_key:
-        st.error("Please enter your Gemini API key.")
-        return None
-    
-    genai.configure(api_key=gemini_api_key)
-    model = genai.GenerativeModel("gemini-2.5-flash-lite")
-
-    response = model.generate_content(prompt)
-    return response.txt
+    return title, article_text
 
 
 def analyze_with_gemini(prompt):
@@ -69,7 +52,7 @@ def analyze_with_gemini(prompt):
 
 
 def extract_keywords(text, top_n=15):
-    tokens = re.findall(r"\b[a-zA-Z]{4,}\b", text.lower())
+    tokens = re.findall(r"\b[a-zA-Z]{3,}\b", text.lower())
     common = Counter(tokens).most_common(top_n)
     return common
 
